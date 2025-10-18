@@ -8,8 +8,9 @@ from dotenv import load_dotenv
 from libs.keep_alive import keep_alive
 load_dotenv()
 
-
-TOKEN = os.getenv("TOKEN")    
+I HATE AWS I HATE AWS I HATE AWSI HATE AWS I HATE AWS I HATE AWS
+I HATE AWS I HATE AWS I HATE AWS
+TOKEN = os.getenv("TOKEN")
 intents = discord.Intents.all()
 prefix = "r!"
 
