@@ -148,6 +148,7 @@ class Listeners(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author.bot: return
+        if message.guild.id != 1415362113056018546: return
         
         self.message_count += 1
         if self.message_count == 150:

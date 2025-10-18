@@ -5,6 +5,7 @@ import traceback
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from libs.keep_alive import keep_alive
 load_dotenv()
 
 
@@ -46,6 +47,7 @@ async def load():
             
 async def main():
     async with client:
+        keep_alive()
         await load()
         await client.start(TOKEN)
         
