@@ -8,6 +8,7 @@ from discord.ext import commands
 from libs import json
 from libs.resourcefinder import Resource
 from structs import messages
+import time 
 
 class Listeners(commands.Cog):
     def __init__(self, client: commands.Bot):
@@ -16,6 +17,8 @@ class Listeners(commands.Cog):
         self.message_count = 0
         self.pumpkin_role_id = 1428982714199179336
         self.current_top_user = None
+        self.user_cooldowns = {}
+        self.data_lock = asyncio.Lock()
 
     def _get_age_path(self):
         return "storage/json/age.json"
@@ -147,8 +150,20 @@ class Listeners(commands.Cog):
     # Example command
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        # Checks to see if user can level up
         if message.author.bot: return
         if message.guild.id != 1415362113056018546: return
+        if len(message.content.strip()) < 3: return
+        
+        cooldown_seconds = 10
+        now = time.time()
+        last_used = self.user_cooldowns.get(message.author.id, 0)
+        if now - last_used < cooldown_seconds:
+            return
+        self.user_cooldowns[message.author.id] = now
+        
+        disallowed_channels = [1415421378177536081, 1415421482544398336, 1415421308614737930]
+        if message.channel.id in disallowed_channels: return
         
         self.message_count += 1
         if self.message_count == 150:
@@ -159,8 +174,8 @@ class Listeners(commands.Cog):
             
             async def reset_luck():
                 await asyncio.sleep(120)  # 2 minutes
-                self.chance //= 10
-                self.message_count = 0  # optional: reset message count to start over
+                self.chance = max(1, self.chance // 10)
+                self.message_count = 0
                 end_embed = messages.error("LUCK BOOST ENDED!")
                 end_embed.description = "### :no_entry_sign: 10X LUCK EXPIRED!"
                 await message.channel.send(embed=end_embed)
@@ -181,7 +196,9 @@ class Listeners(commands.Cog):
             await msg.delete()
             
             path = self._get_age_path()
-            json.dump_json(path, data)
+            
+            async with self.data_lock:
+                json.dump_json(path, data)
             
             await self.update_top_role(message.guild)
             return
