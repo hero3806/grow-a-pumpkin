@@ -34,7 +34,7 @@ class Listeners(commands.Cog):
             return
         
         sorted_data = sorted(data.items(), key=lambda x: x[1]["age"], reverse=True)
-        top_user_id = int(sorted_data[0[0]])
+        top_user_id = int(sorted_data[0][0])
         top_member = guild.get_member(top_user_id)
         
         if not top_member:
